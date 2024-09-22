@@ -74,7 +74,12 @@ class MainActivity : ComponentActivity() {
                     NavHost(navController = navController, startDestination = "home") {
                         composable("home") { HomeScreen(navController) }
                         composable("createAlarm") { CreateAlarmScreen(navController) }
-                        composable("listOfAlarms") { AlarmScreen() }
+                        composable("listOfAlarms") { AlarmScreen(navController) }
+                        composable("editAlarm/{alarmId}") { backStackEntry ->
+                            val alarmId = backStackEntry.arguments?.getString("alarmId")?.toInt() ?: 0
+                            EditAlarmScreen(navController, alarmId)
+                        }
+
                     }
                 }
             }
@@ -590,57 +595,67 @@ fun AlarmOptions(navController: androidx.navigation.NavHostController) {
 
 
 @Composable
-fun AlarmScreen() {
+fun AlarmScreen(navController: androidx.navigation.NavHostController) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 16.dp) // Padding general
+            .padding(horizontal = 16.dp)
     ) {
-        Spacer(modifier = Modifier.height(30.dp)) // Espacio superior
+        Spacer(modifier = Modifier.height(30.dp))
         Text(
             text = "Tus alarmas",
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(bottom = 16.dp) // Espacio inferior del título
+            modifier = Modifier.padding(bottom = 16.dp)
         )
-        AlarmList()
+        AlarmList(navController)
     }
 }
 
+
 @Composable
-fun AlarmList() {
+fun AlarmList(navController: androidx.navigation.NavHostController) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
     ) {
         AlarmItem(
-            imageRes = R.drawable.image1, // Reemplazar por la imagen correcta
+            imageRes = R.drawable.image1,
             title = "Despertar",
-            time = "06:00 AM"
+            time = "06:00 AM",
+            navController = navController,
+            alarmId = 1
         )
         Spacer(modifier = Modifier.height(16.dp))
         AlarmItem(
-            imageRes = R.drawable.image2, // Reemplazar por la imagen correcta
+            imageRes = R.drawable.image2,
             title = "Preparar almuerzo",
-            time = "11:00 AM"
+            time = "11:00 AM",
+            navController = navController,
+            alarmId = 2
         )
         Spacer(modifier = Modifier.height(16.dp))
         AlarmItem(
-            imageRes = R.drawable.image3, // Reemplazar por la imagen correcta
+            imageRes = R.drawable.image3,
             title = "Recoger a Felipe del jardín",
-            time = "02:00 PM"
+            time = "02:00 PM",
+            navController = navController,
+            alarmId = 3
         )
         Spacer(modifier = Modifier.height(16.dp))
         AlarmItem(
-            imageRes = R.drawable.image4, // Reemplazar por la imagen correcta
+            imageRes = R.drawable.image4,
             title = "Reunión de proyecto",
-            time = "03:30 PM"
+            time = "03:30 PM",
+            navController = navController,
+            alarmId = 4
         )
     }
 }
 
+
 @Composable
-fun AlarmItem(imageRes: Int, title: String, time: String) {
+fun AlarmItem(imageRes: Int, title: String, time: String, navController: androidx.navigation.NavHostController, alarmId: Int) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -681,17 +696,113 @@ fun AlarmItem(imageRes: Int, title: String, time: String) {
                         Text(text = "Compartir", fontSize = 12.sp)
                     }
                     Spacer(modifier = Modifier.width(8.dp))
-                    TextButton(onClick = { /* Acción editar */ }) {
+                    TextButton(onClick = {
+                        // Use the passed navController to navigate to the edit screen with the alarm ID
+                        navController.navigate("editAlarm/$alarmId")
+                    }) {
                         Text(text = "Editar", fontSize = 12.sp)
                     }
                 }
             }
             IconButton(onClick = { /* Acción de ir a más detalles */ }) {
                 Icon(
-                    painter = painterResource(id = R.drawable.ic_arrow_right), // Reemplazar con el icono correcto
+                    painter = painterResource(id = R.drawable.ic_arrow_right),
                     contentDescription = null,
-                    modifier = Modifier.size(24.dp) // Tamaño del icono ajustado
+                    modifier = Modifier.size(24.dp)
                 )
+            }
+        }
+    }
+}
+
+// ***********************************************************
+// Fin de la implementación
+// ***********************************************************
+
+@Composable
+fun EditAlarmScreen(navController: androidx.navigation.NavHostController, alarmId: Int) {
+    // You could retrieve the alarm details using `alarmId` for mock data
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(24.dp), // Padding for the main column
+        verticalArrangement = Arrangement.SpaceBetween,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        // Reuse the same components from CreateAlarmScreen
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp), // Padding for internal sections
+            horizontalAlignment = Alignment.Start
+        ) {
+            Text(
+                text = "Hora de alarma",
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Normal,
+                textAlign = TextAlign.Center,
+                color = Color(0xFF424242)
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // Reuse time selection component from CreateAlarmScreen
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column {
+                    Row {
+                        SquareTextField() // Reuse this component for hour
+                        Column {
+                            Text(
+                                text = ":",
+                                fontSize = 36.sp,
+                                color = Color.Black,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.wrapContentHeight(Alignment.CenterVertically)
+                            )
+                        }
+                        SquareTextField() // Reuse this component for minutes
+                    }
+                }
+                Column {
+                    AmPmRadioButtons() // Reuse AM/PM selector
+                }
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Reuse the components for name, photo, and options (Vibrate, Repeat, etc.)
+            AlarmNameWithPhotoButton()
+            AlarmOptions(navController)
+        }
+
+        // Exit and Save buttons with navigation control
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Button(
+                onClick = { navController.navigate("listOfAlarms") },
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF66BB6A)), // Light green color
+                shape = RoundedCornerShape(50)
+            ) {
+                Icon(Icons.Filled.ArrowBack, contentDescription = "Back")
+                Text(" Back", color = Color.White)
+            }
+
+            Button(
+                onClick = {
+                    // Action for saving the edited alarm
+                    navController.navigate("listOfAlarms")
+                },
+                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF006769)), // Specific color
+                shape = RoundedCornerShape(50)
+            ) {
+                Icon(Icons.Filled.Check, contentDescription = "Save")
+                Text(" Save", color = Color.White)
             }
         }
     }
