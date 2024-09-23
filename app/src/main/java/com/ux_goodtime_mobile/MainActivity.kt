@@ -59,6 +59,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.delay
+import androidx.compose.material.TopAppBar
+import androidx.compose.foundation.background
+import androidx.compose.material.icons.filled.Edit
+
 
 class MainActivity : ComponentActivity() {
     @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -74,7 +78,8 @@ class MainActivity : ComponentActivity() {
                     NavHost(navController = navController, startDestination = "home") {
                         composable("home") { HomeScreen(navController) }
                         composable("createAlarm") { CreateAlarmScreen(navController) }
-                        composable("listOfAlarms") { AlarmScreen() }
+                        composable("listOfAlarms") { AlarmScreen(navController) }
+                        composable("alarmDetail") { AlarmDetailScreen() }
                     }
                 }
             }
@@ -481,7 +486,7 @@ fun AlarmOptions(navController: androidx.navigation.NavHostController) {
             onClick = { /* Acción al presionar el botón */ },
             modifier = Modifier.align(Alignment.Start),
             colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF006769) // Color de fondo (#006769)
+                containerColor = Color(0xFF006769) // Color de fondo (#006769)
             ),
         ) {
             Text(text = "Seleccionar (Clasic)")
@@ -505,7 +510,7 @@ fun AlarmOptions(navController: androidx.navigation.NavHostController) {
                     .padding(16.dp),
                 singleLine = true,
 
-            )
+                )
             Text(
                 text = "La descripción le ayudará a recordar mejor el propósito de la alarma.",
                 fontSize = 12.sp,
@@ -539,7 +544,7 @@ fun AlarmOptions(navController: androidx.navigation.NavHostController) {
 
             Button(
                 onClick = {
-                          showDialog = true
+                    showDialog = true
                 },
                 colors = ButtonDefaults.run {
                     val buttonColors = buttonColors(Color(0xFF006769))
@@ -564,7 +569,7 @@ fun AlarmOptions(navController: androidx.navigation.NavHostController) {
                             "",
                             color = Color(0xFF006769)
                         )
-                            },
+                    },
                     text = {
                         Text(
                             text = "Alarma Agregada.",
@@ -590,7 +595,7 @@ fun AlarmOptions(navController: androidx.navigation.NavHostController) {
 
 
 @Composable
-fun AlarmScreen() {
+fun AlarmScreen(navController: androidx.navigation.NavHostController) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -603,12 +608,12 @@ fun AlarmScreen() {
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(bottom = 16.dp) // Espacio inferior del título
         )
-        AlarmList()
+        AlarmList(navController)
     }
 }
 
 @Composable
-fun AlarmList() {
+fun AlarmList(navController: androidx.navigation.NavHostController) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -616,31 +621,35 @@ fun AlarmList() {
         AlarmItem(
             imageRes = R.drawable.image1, // Reemplazar por la imagen correcta
             title = "Despertar",
+            navController = navController,
             time = "06:00 AM"
         )
         Spacer(modifier = Modifier.height(16.dp))
         AlarmItem(
             imageRes = R.drawable.image2, // Reemplazar por la imagen correcta
             title = "Preparar almuerzo",
+            navController = navController,
             time = "11:00 AM"
         )
         Spacer(modifier = Modifier.height(16.dp))
         AlarmItem(
             imageRes = R.drawable.image3, // Reemplazar por la imagen correcta
             title = "Recoger a Felipe del jardín",
+            navController = navController,
             time = "02:00 PM"
         )
         Spacer(modifier = Modifier.height(16.dp))
         AlarmItem(
             imageRes = R.drawable.image4, // Reemplazar por la imagen correcta
             title = "Reunión de proyecto",
+            navController = navController,
             time = "03:30 PM"
         )
     }
 }
 
 @Composable
-fun AlarmItem(imageRes: Int, title: String, time: String) {
+fun AlarmItem(imageRes: Int, title: String, time: String, navController: androidx.navigation.NavHostController) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -686,13 +695,112 @@ fun AlarmItem(imageRes: Int, title: String, time: String) {
                     }
                 }
             }
-            IconButton(onClick = { /* Acción de ir a más detalles */ }) {
+            IconButton(onClick = { navController.navigate("alarmDetail") }) {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_arrow_right), // Reemplazar con el icono correcto
                     contentDescription = null,
                     modifier = Modifier.size(24.dp) // Tamaño del icono ajustado
                 )
             }
+        }
+    }
+}
+
+// Detalle de alarma
+
+
+class AlarmDetailActivity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContent {
+            AlarmDetailScreen()
+        }
+    }
+}
+
+@Composable
+fun AlarmDetailScreen() {
+    val navController = rememberNavController()
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text(text = "Reunión de proyecto", fontSize = 20.sp) },
+                navigationIcon = {
+                    IconButton(onClick = { /* Handle back navigation */ }) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                    }
+                }
+            )
+        },
+        bottomBar = { BottomNavigationBar(navController) }
+    ) { paddingValues ->  // This is where we handle the content padding
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)  // Apply the padding
+                .padding(16.dp)
+        ) {
+            Text(
+                text = "Hora",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+            Text(
+                text = "06:00 PM",
+                fontSize = 32.sp,
+                fontWeight = FontWeight.Bold,
+                color  = Color(0xFF424242)
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            Image(
+                painter = painterResource(id = R.drawable.image4), // Replace with the appropriate image
+                contentDescription = "Alarm Image",
+                modifier = Modifier
+                    .height(200.dp)
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(12.dp))
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = "Despertar",
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                text = "A despertar! Vamos con Toda!!!",
+                fontSize = 16.sp,
+                color = Color.Gray
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            AlarmOptionsSection()
+            Spacer(modifier = Modifier.height(16.dp))
+            Button(
+                onClick = { /* Handle delete action */ },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color.Red)  // Apply background color directly
+            ) {
+                Text("Eliminar", color = Color.White)
+            }
+        }
+    }
+}
+
+@Composable
+fun AlarmOptionsSection() {
+    Column {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Checkbox(checked = true, onCheckedChange = null)
+            Text("Vibrar", fontSize = 18.sp)
+        }
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Checkbox(checked = true, onCheckedChange = null)
+            Text("Repetir", fontSize = 18.sp)
+        }
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Icon(Icons.Default.Edit, contentDescription = null)
+            Text("Clasic", fontSize = 18.sp)
         }
     }
 }
