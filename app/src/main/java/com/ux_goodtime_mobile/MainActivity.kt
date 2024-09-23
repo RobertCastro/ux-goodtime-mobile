@@ -74,16 +74,8 @@ class MainActivity : ComponentActivity() {
                     NavHost(navController = navController, startDestination = "home") {
                         composable("home") { HomeScreen(navController) }
                         composable("createAlarm") { CreateAlarmScreen(navController) }
-                        composable("listOfAlarms") { AlarmScreen(navController) }
-                        composable("editAlarm/{alarmId}") { backStackEntry ->
-                            val alarmId = backStackEntry.arguments?.getString("alarmId")?.toInt() ?: 0
-                            Column {
-                                EditAlarmScreen(navController, alarmId) // Alarm editing form
-                                EditAlarmButtons(navController) // Exit and Update buttons
-                            }
-                        }
+                        composable("listOfAlarms") { AlarmScreen() }
                     }
-
                 }
             }
         }
@@ -489,7 +481,7 @@ fun AlarmOptions(navController: androidx.navigation.NavHostController) {
             onClick = { /* Acción al presionar el botón */ },
             modifier = Modifier.align(Alignment.Start),
             colors = ButtonDefaults.buttonColors(
-                containerColor = Color(0xFF006769) // Color de fondo (#006769)
+                    containerColor = Color(0xFF006769) // Color de fondo (#006769)
             ),
         ) {
             Text(text = "Seleccionar (Clasic)")
@@ -513,7 +505,7 @@ fun AlarmOptions(navController: androidx.navigation.NavHostController) {
                     .padding(16.dp),
                 singleLine = true,
 
-                )
+            )
             Text(
                 text = "La descripción le ayudará a recordar mejor el propósito de la alarma.",
                 fontSize = 12.sp,
@@ -547,7 +539,7 @@ fun AlarmOptions(navController: androidx.navigation.NavHostController) {
 
             Button(
                 onClick = {
-                    showDialog = true
+                          showDialog = true
                 },
                 colors = ButtonDefaults.run {
                     val buttonColors = buttonColors(Color(0xFF006769))
@@ -572,7 +564,7 @@ fun AlarmOptions(navController: androidx.navigation.NavHostController) {
                             "",
                             color = Color(0xFF006769)
                         )
-                    },
+                            },
                     text = {
                         Text(
                             text = "Alarma Agregada.",
@@ -598,67 +590,57 @@ fun AlarmOptions(navController: androidx.navigation.NavHostController) {
 
 
 @Composable
-fun AlarmScreen(navController: androidx.navigation.NavHostController) {
+fun AlarmScreen() {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 16.dp)
+            .padding(horizontal = 16.dp) // Padding general
     ) {
-        Spacer(modifier = Modifier.height(30.dp))
+        Spacer(modifier = Modifier.height(30.dp)) // Espacio superior
         Text(
             text = "Tus alarmas",
             fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(bottom = 16.dp)
+            modifier = Modifier.padding(bottom = 16.dp) // Espacio inferior del título
         )
-        AlarmList(navController)
+        AlarmList()
     }
 }
 
-
 @Composable
-fun AlarmList(navController: androidx.navigation.NavHostController) {
+fun AlarmList() {
     Column(
         modifier = Modifier
             .fillMaxWidth()
     ) {
         AlarmItem(
-            imageRes = R.drawable.image1,
+            imageRes = R.drawable.image1, // Reemplazar por la imagen correcta
             title = "Despertar",
-            time = "06:00 AM",
-            navController = navController,
-            alarmId = 1
+            time = "06:00 AM"
         )
         Spacer(modifier = Modifier.height(16.dp))
         AlarmItem(
-            imageRes = R.drawable.image2,
+            imageRes = R.drawable.image2, // Reemplazar por la imagen correcta
             title = "Preparar almuerzo",
-            time = "11:00 AM",
-            navController = navController,
-            alarmId = 2
+            time = "11:00 AM"
         )
         Spacer(modifier = Modifier.height(16.dp))
         AlarmItem(
-            imageRes = R.drawable.image3,
+            imageRes = R.drawable.image3, // Reemplazar por la imagen correcta
             title = "Recoger a Felipe del jardín",
-            time = "02:00 PM",
-            navController = navController,
-            alarmId = 3
+            time = "02:00 PM"
         )
         Spacer(modifier = Modifier.height(16.dp))
         AlarmItem(
-            imageRes = R.drawable.image4,
+            imageRes = R.drawable.image4, // Reemplazar por la imagen correcta
             title = "Reunión de proyecto",
-            time = "03:30 PM",
-            navController = navController,
-            alarmId = 4
+            time = "03:30 PM"
         )
     }
 }
 
-
 @Composable
-fun AlarmItem(imageRes: Int, title: String, time: String, navController: androidx.navigation.NavHostController, alarmId: Int) {
+fun AlarmItem(imageRes: Int, title: String, time: String) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -699,153 +681,18 @@ fun AlarmItem(imageRes: Int, title: String, time: String, navController: android
                         Text(text = "Compartir", fontSize = 12.sp)
                     }
                     Spacer(modifier = Modifier.width(8.dp))
-                    TextButton(onClick = {
-                        // Use the passed navController to navigate to the edit screen with the alarm ID
-                        navController.navigate("editAlarm/$alarmId")
-                    }) {
+                    TextButton(onClick = { /* Acción editar */ }) {
                         Text(text = "Editar", fontSize = 12.sp)
                     }
                 }
             }
             IconButton(onClick = { /* Acción de ir a más detalles */ }) {
                 Icon(
-                    painter = painterResource(id = R.drawable.ic_arrow_right),
+                    painter = painterResource(id = R.drawable.ic_arrow_right), // Reemplazar con el icono correcto
                     contentDescription = null,
-                    modifier = Modifier.size(24.dp)
+                    modifier = Modifier.size(24.dp) // Tamaño del icono ajustado
                 )
             }
         }
     }
 }
-
-// ***********************************************************
-// Fin de la implementación
-// ***********************************************************
-
-@Composable
-fun EditAlarmScreen(navController: androidx.navigation.NavHostController, alarmId: Int) {
-    // We will not have the buttons here anymore
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(24.dp), // Padding for the main column
-        verticalArrangement = Arrangement.Top,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        // Reuse the same components from CreateAlarmScreen
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp), // Padding for internal sections
-            horizontalAlignment = Alignment.Start
-        ) {
-            Text(
-                text = "Editar Alarma",
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Normal,
-                textAlign = TextAlign.Center,
-                color = Color(0xFF424242)
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // Reuse time selection component from CreateAlarmScreen
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column {
-                    Row {
-                        SquareTextField() // Reuse this component for hour
-                        Column {
-                            Text(
-                                text = ":",
-                                fontSize = 36.sp,
-                                color = Color.Black,
-                                textAlign = TextAlign.Center,
-                                modifier = Modifier.wrapContentHeight(Alignment.CenterVertically)
-                            )
-                        }
-                        SquareTextField() // Reuse this component for minutes
-                    }
-                }
-                Column {
-                    AmPmRadioButtons() // Reuse AM/PM selector
-                }
-            }
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Reuse the components for name, photo, and options (Vibrate, Repeat, etc.)
-            AlarmNameWithPhotoButton()
-            AlarmOptions(navController)
-        }
-    }
-}
-
-@Composable
-fun EditAlarmButtons(navController: androidx.navigation.NavHostController) {
-    var showDialog by remember { mutableStateOf(false) }
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp), // Adjust as necessary
-        verticalArrangement = Arrangement.Bottom, // Make sure buttons are aligned at the bottom
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Button(
-                onClick = { navController.navigate("listOfAlarms") }, // Navigate to the list
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF66BB6A)), // Light green color
-                shape = RoundedCornerShape(50)
-            ) {
-                Icon(Icons.Filled.ArrowBack, contentDescription = "Salir")
-                Text(" Salir", color = Color.White)
-            }
-
-            Button(
-                onClick = { showDialog = true }, // Show confirmation dialog
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF006769)), // Dark green color
-                shape = RoundedCornerShape(50)
-            ) {
-                Icon(Icons.Filled.Check, contentDescription = "Actualizar")
-                Text(" Actualizar", color = Color.White)
-            }
-        }
-
-        // Confirmation Dialog for updating alarm
-        if (showDialog) {
-            AlertDialog(
-                onDismissRequest = { showDialog = false },
-                title = {
-                    Text(
-                        "Alarma Actualizada",
-                        color = Color(0xFF006769)
-                    )
-                },
-                text = {
-                    Text(
-                        text = "La alarma ha sido actualizada con éxito.",
-                        color = Color(0xFF006769),
-                        fontSize = 20.sp
-                    )
-                },
-                confirmButton = {
-                    Button(
-                        onClick = {
-                            showDialog = false
-                            navController.navigate("listOfAlarms") // After confirmation, go to list
-                        }
-                    ) {
-                        Text("Aceptar")
-                    }
-                }
-            )
-        }
-    }
-}
-
